@@ -2,44 +2,44 @@ package com.akanksha;
 
 public class QuantityMeasurementApp {
 
-  public static class Feet {
-    private final double value;
+  public enum LengthUnit {
+    FEET(1.0),
+    INCH(1.0 / 12.0);
 
-    public Feet(double value) {
-      this.value = value;
+    private final double toFeetFactor;
+
+    LengthUnit(double toFeetFactor) {
+      this.toFeetFactor = toFeetFactor;
     }
 
-    public double getValue() {
-      return value;
+    public double toFeet(double value) {
+      return value * toFeetFactor;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (obj == null || this.getClass() != obj.getClass()) {
-        return false;
-      }
-      Feet feet = (Feet) obj;
-      return Double.compare(this.value, feet.value) == 0;
-    }
-
-    @Override
-    public int hashCode() {
-      return Double.hashCode(value);
+    public double getToFeetFactor() {
+      return toFeetFactor;
     }
   }
 
-  public static class Inches {
+  public static class QuantityLength {
     private final double value;
+    private final LengthUnit unit;
 
-    public Inches(double value) {
+    public QuantityLength(double value, LengthUnit unit) {
       this.value = value;
+      this.unit = unit;
     }
 
     public double getValue() {
       return value;
+    }
+
+    public LengthUnit getUnit() {
+      return unit;
+    }
+
+    public double toFeet() {
+      return unit.toFeet(value);
     }
 
     @Override
@@ -47,21 +47,33 @@ public class QuantityMeasurementApp {
       if (this == obj) {
         return true;
       }
-      if (obj == null || this.getClass() != obj.getClass()) {
+      if (!(obj instanceof QuantityLength)) {
         return false;
       }
-      Inches inches = (Inches) obj;
-      return Double.compare(this.value, inches.value) == 0;
+      QuantityLength other = (QuantityLength) obj;
+      return Double.compare(this.toFeet(), other.toFeet()) == 0;
     }
 
     @Override
     public int hashCode() {
-      return Double.hashCode(value);
+      return Double.hashCode(this.toFeet());
+    }
+  }
+
+  // Backwards-compatible wrappers
+  public static class Feet extends QuantityLength {
+    public Feet(double value) {
+      super(value, LengthUnit.FEET);
+    }
+  }
+
+  public static class Inches extends QuantityLength {
+    public Inches(double value) {
+      super(value, LengthUnit.INCH);
     }
   }
 
   public static void main(String[] args) {
-    // Feet equality checks
     System.out.println("=== FEET EQUALITY CHECKS ===");
     Feet feet1 = new Feet(1.0);
     Feet feet2 = new Feet(1.0);
@@ -79,7 +91,6 @@ public class QuantityMeasurementApp {
     System.out.println("\nInput: " + feet1.getValue() + " ft and \"1.0\" (String)");
     System.out.println("Output: " + (feet1.equals("1.0") ? "Equal (true)" : "Not Equal (false)"));
 
-    // Inches equality checks
     System.out.println("\n=== INCHES EQUALITY CHECKS ===");
     Inches inches1 = new Inches(1.0);
     Inches inches2 = new Inches(1.0);
@@ -96,5 +107,11 @@ public class QuantityMeasurementApp {
 
     System.out.println("\nInput: " + inches1.getValue() + " inch and \"1.0\" (String)");
     System.out.println("Output: " + (inches1.equals("1.0") ? "Equal (true)" : "Not Equal (false)"));
+
+    System.out.println("\n=== CROSS-UNIT EQUALITY CHECKS ===");
+    Feet oneFoot = new Feet(1.0);
+    Inches twelveInches = new Inches(12.0);
+    System.out.println("Input: " + oneFoot.getValue() + " ft and " + twelveInches.getValue() + " inch");
+    System.out.println("Output: " + (oneFoot.equals(twelveInches) ? "Equal (true)" : "Not Equal (false)"));
   }
 }
