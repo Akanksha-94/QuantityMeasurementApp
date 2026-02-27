@@ -4,7 +4,9 @@ public class QuantityMeasurementApp {
 
   public enum LengthUnit {
     FEET(1.0),
-    INCH(1.0 / 12.0);
+    INCH(1.0 / 12.0),
+    YARDS(3.0),
+    CENTIMETERS(0.393701 / 12.0);
 
     private final double toFeetFactor;
 
@@ -73,6 +75,18 @@ public class QuantityMeasurementApp {
     }
   }
 
+  public static class Yards extends QuantityLength {
+    public Yards(double value) {
+      super(value, LengthUnit.YARDS);
+    }
+  }
+
+  public static class Centimeters extends QuantityLength {
+    public Centimeters(double value) {
+      super(value, LengthUnit.CENTIMETERS);
+    }
+  }
+
   public static void main(String[] args) {
     System.out.println("=== FEET EQUALITY CHECKS ===");
     Feet feet1 = new Feet(1.0);
@@ -113,5 +127,38 @@ public class QuantityMeasurementApp {
     Inches twelveInches = new Inches(12.0);
     System.out.println("Input: " + oneFoot.getValue() + " ft and " + twelveInches.getValue() + " inch");
     System.out.println("Output: " + (oneFoot.equals(twelveInches) ? "Equal (true)" : "Not Equal (false)"));
+
+    System.out.println("\n=== YARDS EQUALITY CHECKS ===");
+    Yards yards1 = new Yards(1.0);
+    Yards yards2 = new Yards(1.0);
+
+    System.out.println("Input: Quantity(1.0, YARDS) and Quantity(1.0, YARDS)");
+    System.out.println("Output: " + (yards1.equals(yards2) ? "Equal (true)" : "Not Equal (false)"));
+
+    Yards yards3 = new Yards(2.0);
+    System.out.println("\nInput: Quantity(1.0, YARDS) and Quantity(2.0, YARDS)");
+    System.out.println("Output: " + (yards1.equals(yards3) ? "Equal (true)" : "Not Equal (false)"));
+
+    Yards oneYard = new Yards(1.0);
+    Feet threeFeot = new Feet(3.0);
+    System.out.println("\nInput: Quantity(1.0, YARDS) and Quantity(3.0, FEET)");
+    System.out.println("Output: " + (oneYard.equals(threeFeot) ? "Equal (true)" : "Not Equal (false)"));
+
+    Yards yardForInches = new Yards(1.0);
+    Inches thirtyySixInches = new Inches(36.0);
+    System.out.println("\nInput: Quantity(1.0, YARDS) and Quantity(36.0, INCHES)");
+    System.out.println("Output: " + (yardForInches.equals(thirtyySixInches) ? "Equal (true)" : "Not Equal (false)"));
+
+    System.out.println("\n=== CENTIMETERS EQUALITY CHECKS ===");
+    Centimeters cm1 = new Centimeters(2.0);
+    Centimeters cm2 = new Centimeters(2.0);
+
+    System.out.println("Input: Quantity(2.0, CENTIMETERS) and Quantity(2.0, CENTIMETERS)");
+    System.out.println("Output: " + (cm1.equals(cm2) ? "Equal (true)" : "Not Equal (false)"));
+
+    Centimeters oneCm = new Centimeters(1.0);
+    Inches cmToInches = new Inches(0.393701);
+    System.out.println("\nInput: Quantity(1.0, CENTIMETERS) and Quantity(0.393701, INCHES)");
+    System.out.println("Output: " + (oneCm.equals(cmToInches) ? "Equal (true)" : "Not Equal (false)"));
   }
 }
