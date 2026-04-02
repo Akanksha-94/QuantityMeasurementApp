@@ -9,6 +9,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @ControllerAdvice
@@ -41,6 +43,38 @@ public class GlobalExceptionHandler {
     return ResponseEntity.badRequest().body(response);
   }
 
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(
+      HttpMessageNotReadableException ex,
+      HttpServletRequest request) {
+
+    ErrorResponse response = ErrorResponse.builder()
+        .timestamp(LocalDateTime.now())
+        .status(HttpStatus.BAD_REQUEST.value())
+        .error("Quantity Measurement Error")
+        .message("Malformed JSON request")
+        .path(request.getRequestURI())
+        .build();
+
+    return ResponseEntity.badRequest().body(response);
+  }
+
+  @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+  public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(
+      MethodArgumentTypeMismatchException ex,
+      HttpServletRequest request) {
+
+    ErrorResponse response = ErrorResponse.builder()
+        .timestamp(LocalDateTime.now())
+        .status(HttpStatus.BAD_REQUEST.value())
+        .error("Quantity Measurement Error")
+        .message("Invalid value for parameter: " + ex.getName())
+        .path(request.getRequestURI())
+        .build();
+
+    return ResponseEntity.badRequest().body(response);
+  }
+
   @ExceptionHandler(QuantityMeasurementException.class)
   public ResponseEntity<ErrorResponse> handleQuantityException(
       QuantityMeasurementException ex,
@@ -55,6 +89,38 @@ public class GlobalExceptionHandler {
         .build();
 
     return ResponseEntity.badRequest().body(response);
+  }
+
+  @ExceptionHandler(ValidationException.class)
+  public ResponseEntity<ErrorResponse> handleValidationException(
+      ValidationException ex,
+      HttpServletRequest request) {
+
+    ErrorResponse response = ErrorResponse.builder()
+        .timestamp(LocalDateTime.now())
+        .status(HttpStatus.BAD_REQUEST.value())
+        .error("Validation Error")
+        .message(ex.getMessage())
+        .path(request.getRequestURI())
+        .build();
+
+    return ResponseEntity.badRequest().body(response);
+  }
+
+  @ExceptionHandler(ResourceNotFoundException.class)
+  public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
+      ResourceNotFoundException ex,
+      HttpServletRequest request) {
+
+    ErrorResponse response = ErrorResponse.builder()
+        .timestamp(LocalDateTime.now())
+        .status(HttpStatus.NOT_FOUND.value())
+        .error("Not Found")
+        .message(ex.getMessage())
+        .path(request.getRequestURI())
+        .build();
+
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
   }
 
   @ExceptionHandler(NoResourceFoundException.class)
